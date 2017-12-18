@@ -1,3 +1,8 @@
+/**
+ *
+ * @author Karen
+ */
+
 package DiceGame;
 
 import java.io.DataInputStream;
