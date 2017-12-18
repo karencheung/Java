@@ -1,8 +1,10 @@
-package ThreadProgramming;
 /**
  *
  * @author Karen
  */
+
+package ThreadProgramming;
+
 import java.sql.*;
 import java.io.*;
 import java.net.*;
