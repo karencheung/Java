@@ -1,9 +1,7 @@
-
 package ThreadProgramming;
-
 /**
  *
- * @author K
+ * @author Karen
  */
 import java.io.*;
 import java.net.*;
