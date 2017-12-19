@@ -10,9 +10,6 @@ import javax.swing.WindowConstants;
 
 public class SimpleWebBrowser {
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
         
 	final JFrame frame = new JFrame();
