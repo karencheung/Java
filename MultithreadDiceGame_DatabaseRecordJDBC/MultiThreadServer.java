@@ -4,7 +4,6 @@
  */
 
 package DiceGame;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -15,17 +14,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 
-/**
- *
- * @author Karen
- */
 public class MultiThreadServer extends JFrame {
-
     /**
      * Creates new form MultiThreadServer
      */
@@ -50,6 +43,7 @@ public class MultiThreadServer extends JFrame {
             while(true){
                 // Listen for a new connection request
                 Socket socket = serverSocket.accept();
+                
                 DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
                 // Display the client number
                 jTextArea1.append('\n' + "Starting thread for player " + clientNo + '\n');
@@ -67,7 +61,7 @@ public class MultiThreadServer extends JFrame {
                     for (int i = 0; i < 3; i++) {
                         
                         serverDice[i] = (int) (Math.floor(Math.random() * (max - min + 1)) + min);
-                        //serverDice[i] = (int) (Math.random() * 6) + 1;
+                        
                     }
                     Arrays.sort(serverDice);
                     jTextArea1.append("\n" + "Server rolled three dice, three dice rolled by server are " + Arrays.toString(serverDice) + "\n" + "\n");
@@ -92,18 +86,19 @@ public class MultiThreadServer extends JFrame {
                         //con.commit();
                         
 
-                        }catch (Exception e) {
-                        System.err.println(e);
+                        }catch (ClassNotFoundException | IllegalAccessException | InstantiationException | SQLException e) {
+                          jTextArea1.append(e.toString());
                         }
                         finally {
                         try { 
                         if(rs != null) 
-                        rs .close();
+                            rs .close();
                         if(st != null) 
-                        st.close(); 
+                            st.close(); 
                         if(con != null) 
-                        con.close(); 
-                        } catch (Exception e) {
+                            con.close(); 
+                        } catch (SQLException e) {
+                            jTextArea1.append(e.toString());
                         }
                     }
                     }catch (Exception e) {
@@ -120,13 +115,13 @@ public class MultiThreadServer extends JFrame {
                     try{
                         serverSocket.close();
                         break outer;
-                    }catch (Exception e) {
+                    }catch (IOException e) {
                         jTextArea1.append(e.toString());            
                     }
                 }
                 
             }          
-        } catch (Exception e) {
+        } catch (IOException e) {
             jTextArea1.append(e.toString());
         }   
     }
@@ -146,14 +141,17 @@ public class MultiThreadServer extends JFrame {
         
         // Run a thread
         public void run() {
-            try {
-                DataInputStream inputFromClient = new DataInputStream(socket.getInputStream());
-                DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
+            try(DataInputStream inputFromClient = new DataInputStream(socket.getInputStream());
+                DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream())) {
+                
                 //get dices guess from client
                 int diceFromClient[] = new int[3];
+                do{
                 for(int i=0;i<3;i++){
                    diceFromClient[i] = inputFromClient.readInt();
                 }
+                }while(inputFromClient.available() > 0);
+                
                 Arrays.sort(diceFromClient);
                 jTextArea1.append("Guess of the three dice from player " + cno + " are " + Arrays.toString(diceFromClient) + "\n");
                 jTextArea1.append("Server three dice are " + Arrays.toString(serverDice) + "\n");
@@ -173,10 +171,10 @@ public class MultiThreadServer extends JFrame {
                         st.setInt(3, diceFromClient[1]);
                         st.setInt(4, diceFromClient[2]);
                         st.executeUpdate();
-                        //con.commit();
+                        
                         
 
-                    }catch (Exception e) {
+                    }catch (ClassNotFoundException | IllegalAccessException | InstantiationException | SQLException e) {
                        jTextArea1.append(e.toString()); 
                     }
                     finally { 
@@ -187,7 +185,7 @@ public class MultiThreadServer extends JFrame {
                         st.close(); 
                       if(con != null) 
                         con.close(); 
-                      }catch(Exception e){
+                      }catch(SQLException e){
                           
                       }
                     }
